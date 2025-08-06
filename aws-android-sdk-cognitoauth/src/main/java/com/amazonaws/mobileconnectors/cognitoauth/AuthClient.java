@@ -27,6 +27,8 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Handler;
+
+import androidx.annotation.Nullable;
 import androidx.browser.customtabs.CustomTabsClient;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.CustomTabsServiceConnection;
@@ -35,6 +37,8 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.amazonaws.cognito.clientcontext.data.UserContextDataProvider;
+import com.amazonaws.http.HttpClient;
+import com.amazonaws.http.UrlHttpClient;
 import com.amazonaws.mobileconnectors.cognitoauth.activities.CustomTabsManagerActivity;
 import com.amazonaws.mobileconnectors.cognitoauth.exceptions.AuthClientException;
 import com.amazonaws.mobileconnectors.cognitoauth.exceptions.AuthInvalidGrantException;
@@ -433,7 +437,9 @@ public class AuthClient {
             };
             @Override
             public void run() {
-                final Uri fqdn = new Uri.Builder()
+                @Nullable Uri tokenEndpointUri = pool.getTokenEndpointUri();
+
+                final Uri fqdn = tokenEndpointUri != null ? tokenEndpointUri : new Uri.Builder()
                         .scheme(ClientConstants.DOMAIN_SCHEME)
                         .authority(pool.getAppWebDomain())
                         .appendPath(ClientConstants.DOMAIN_PATH_OAUTH2)
@@ -547,7 +553,9 @@ public class AuthClient {
 
             @Override
             public void run() {
-                final Uri fqdn = new Uri.Builder()
+                @Nullable Uri tokenEndpointUri = pool.getTokenEndpointUri();
+
+                final Uri fqdn = tokenEndpointUri != null ? tokenEndpointUri : new Uri.Builder()
                         .scheme(ClientConstants.DOMAIN_SCHEME)
                         .authority(pool.getAppWebDomain())
                         .appendPath(ClientConstants.DOMAIN_PATH_OAUTH2)

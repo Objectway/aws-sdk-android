@@ -1,5 +1,7 @@
-apply from: rootProject.file('publishing.gradle')
+//apply from: rootProject.file('publishing.gradle')
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.artifactory'
 
 android {
     compileSdkVersion 30
@@ -16,5 +18,55 @@ android {
 }
 
 dependencies {
-    api project(':aws-android-sdk-core')
+    //api project(':aws-android-sdk-core')
+    api "com.amazonaws:aws-android-sdk-core:$VERSION_NAME"
+}
+
+ArrayList<String> pubs = new ArrayList<>()
+
+afterEvaluate {
+    android.libraryVariants.all { variant ->
+        if (variant.name == "release") {
+            pubs.add("release")
+            publishing {
+                publications {
+                    aar(MavenPublication) {
+                        groupId GROUP
+                        artifactId POM_ARTIFACT_ID
+                        version VERSION_NAME
+                        artifact("${buildDir}/outputs/aar/${artifactId}-release.aar")
+                        pom.withXml {
+                            def dependenciesNode = asNode().appendNode('dependencies')
+                            configurations.implementation.allDependencies.each {
+                                def dependencyNode = dependenciesNode.appendNode('dependency')
+                                dependencyNode.appendNode('groupId', it.group)
+                                dependencyNode.appendNode('artifactId', it.name)
+                                dependencyNode.appendNode('version', it.version)
+                            }
+                        }
+                    }
+                }
+            }
+            artifactoryPublish {
+                publications(publishing.publications.aar)
+            }
+        }
+    }
+}
+
+artifactory {
+    contextUrl = 'http://mercurial.objectway.it/artifactory'
+    publish {
+        repository {
+            repoKey = 'ext-release-local'
+
+            username = "$artifactory_username"
+            password = "$artifactory_password"
+        }
+        defaults {
+            publishArtifacts = true
+            properties = ['qa.level': 'basic', 'q.os': 'android', 'dev.team': 'core']
+            publishPom = true
+        }
+    }
 }

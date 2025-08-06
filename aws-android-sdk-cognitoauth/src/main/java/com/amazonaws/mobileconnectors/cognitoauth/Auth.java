@@ -23,6 +23,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Patterns;
 
+import androidx.annotation.Nullable;
+
 import com.amazonaws.internal.keyvaluestore.AWSKeyValueStore;
 import com.amazonaws.mobileconnectors.cognitoauth.exceptions.AuthInvalidParameterException;
 import com.amazonaws.mobileconnectors.cognitoauth.handlers.AuthHandler;
@@ -105,6 +107,11 @@ public final class Auth {
     private final String signOutRedirectUri;
 
     /**
+     * Uri for the POST Token API.
+     */
+    private final String tokenEndpointUri;
+
+    /**
      * Optional string specifying the browser to open custom tabs. Defaults to Chrome if left null.
      */
     private String browserPackage;
@@ -181,6 +188,7 @@ public final class Auth {
                  final String appSecret,
                  final String signInRedirectUri,
                  final String signOutRedirectUri,
+                 final String tokenEndpointUri,
                  final Set<String> scopes,
                  final AuthHandler userHandler,
                  final boolean advancedSecurityDataCollectionFlag,
@@ -194,6 +202,7 @@ public final class Auth {
         this.appSecret = appSecret;
         this.signInRedirectUri = signInRedirectUri;
         this.signOutRedirectUri = signOutRedirectUri;
+        this.tokenEndpointUri = tokenEndpointUri;
         this.scopes = scopes;
         this.user = new AuthClient(context, this);
         this.user.setUserHandler(userHandler);
@@ -244,6 +253,11 @@ public final class Auth {
          * Redirect Uri for Sign Out.
          */
         private String mSignOutRedirect;
+
+        /**
+         * Uri for the POST Token API.
+         */
+        private String mTokenEndpointUri;
 
         /**
          * Scopes for the requested tokens.
@@ -410,12 +424,20 @@ public final class Auth {
         }
 
         /**
+         * Sets the token endpoint uri for the POST Token api.
+         */
+        @SuppressWarnings("checkstyle:hiddenfield")
+        public Builder setTokenEndpointUri(final String mTokenEndpointUri) {
+            this.mTokenEndpointUri = mTokenEndpointUri;
+            return this;
+        }
+
+        /**
          * Sets the scopes for tokens.
          * <p>
          *     Optional. Set scopes when requesting tokens with specific set of permissions.
          *     Default scopes for the user-pool will be used if this is not set.
          * </p>
-         * @param mScopes Required: Scopes as a {@link Set<String>}.
          * @return A reference to this builder.
          */
         @SuppressWarnings("checkstyle:hiddenfield")
@@ -491,6 +513,7 @@ public final class Auth {
                     this.mAppSecret,
                     this.mSignInRedirect,
                     this.mSignOutRedirect,
+                    this.mTokenEndpointUri,
                     this.mScopes,
                     this.mUserHandler,
                     this.mAdvancedSecurityDataCollectionFlag,
@@ -623,6 +646,17 @@ public final class Auth {
      */
     public String getSignOutRedirectUri() {
         return signOutRedirectUri;
+    }
+
+    /**
+     * @return Token Endpoint Uri set for this {@link Auth} instance.
+     */
+    public @Nullable Uri getTokenEndpointUri() {
+        try {
+            return Uri.parse(tokenEndpointUri);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     /**

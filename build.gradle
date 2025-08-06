@@ -2,11 +2,20 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url "http://mercurial.objectway.it/artifactory/ext-release-local"
+            allowInsecureProtocol true
+            credentials {
+                username "$artifactory_username"
+                password "$artifactory_password"
+            }
+        }
     }
 
     dependencies {
         classpath 'com.amazonaws:aws-devicefarm-gradle-plugin:1.3'
         classpath 'com.android.tools.build:gradle:4.0.1'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.29.2"
     }
 }
 
@@ -14,6 +23,14 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url "http://mercurial.objectway.it/artifactory/ext-release-local"
+            allowInsecureProtocol true
+            credentials {
+                username "$artifactory_username"
+                password "$artifactory_password"
+            }
+        }
     }
 }
 

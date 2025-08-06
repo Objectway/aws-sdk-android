@@ -48,7 +48,7 @@ def getRepositoryPassword() {
 
 archivesBaseName = POM_ARTIFACT_ID
 
-afterEvaluate { project ->
+/*afterEvaluate { project ->
     uploadArchives {
         repositories {
             if (project.hasProperty('SONATYPE_NEXUS_USERNAME')) {
@@ -257,5 +257,5 @@ afterEvaluate { project ->
             }
         }
     }
-}
+}*/
 
